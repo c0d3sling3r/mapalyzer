@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 
 using EasyMapper.Data;
 using EasyMapper.Sources;
+using EasyMapper.Builders;
 
 namespace EasyMapper.Core
 {
@@ -14,14 +15,14 @@ namespace EasyMapper.Core
     {
         public void Execute(GeneratorExecutionContext context)
         {
-            if (context.SyntaxContextReceiver is MapFromSyntaxReciever receiver)
+            if (context.SyntaxContextReceiver is MapFromSyntaxReceiver receiver)
             {
                 foreach ((DeclarationType declarationType, INamedTypeSymbol dstSymbol, INamedTypeSymbol srcSymbol) in receiver.MappingAddressList)
                 {
                     List<PropertyMapHolder> propertyMapHolders = new();
 
-                    IEnumerable<IPropertySymbol> dstPropertySymbols = dstSymbol.GetAllMembers().OfType<IPropertySymbol>().ToList();
-                    IEnumerable<IPropertySymbol> srcPropertySymbols = srcSymbol.GetAllMembers().OfType<IPropertySymbol>().ToList();
+                    IEnumerable<IPropertySymbol> dstPropertySymbols = dstSymbol.GetAllMembers().OfType<IPropertySymbol>().Where(ds => ds.Type.IsPrimitive()).ToList();
+                    IEnumerable<IPropertySymbol> srcPropertySymbols = srcSymbol.GetAllMembers().OfType<IPropertySymbol>().Where(ss => ss.Type.IsPrimitive()).ToList();
 
                     IPropertySymbol dps;
                     List<InjectableNameSpace> injectableNameSpaces = new();
@@ -38,45 +39,9 @@ namespace EasyMapper.Core
                             propertyMapHolders.Add(new PropertyMapHolder(dps, SourcePropertySymbol: ps));
                     }
 
-                    //static bool getConverterByFieldAttribute(AttributeData ad) => ad.AttributeClass.ToDisplayString() == MapConverterForAttributeSource._fullyQualifiedName;
-                    //IEnumerable<IFieldSymbol> mapConverters = dstSymbol.GetMembers().OfType<IFieldSymbol>().Where(fs => fs.GetAttributes().Any(ad => getConverterByFieldAttribute(ad)));
-
                     foreach (IPropertySymbol ps in dstPropertySymbols)
                     {
-                        //IFieldSymbol propertyConverterField = mapConverters.SingleOrDefault(fs => (string)(fs.GetAttributes().Single(at => getConverterByFieldAttribute(at))).ConstructorArguments.ElementAt(0).Value == ps.Name);
-
-                        //if (propertyConverterField is not null)
-                            //propertyMapHolders.Add(new PropertyMapHolder(ps, ConverterFieldSymbol: propertyConverterField));
-
-                        AttributeData mapPropertyFormAttributeData = ps.GetAttributes().SingleOrDefault(at => at.AttributeClass?.ToDisplayString() == new MapPropertyFromAttributeSource().FullyQualifiedName);
-
-                        if (mapPropertyFormAttributeData is not null)
-                        {
-                            string differentSourcePropertyName = (string) mapPropertyFormAttributeData.ConstructorArguments.ElementAt(0).Value;
-                            bool ignoreTypeDifference = (bool) (mapPropertyFormAttributeData.ConstructorArguments.ElementAt(1).Value ?? false);
-                            
-                            IPropertySymbol sourcePropertySymbol = srcPropertySymbols.SingleOrDefault(sps => 
-                                ps.IsEqual(srcSymbol, sps, context.Compilation, receiver.SyntaxNode, receiver.Diagnostics, differentSourcePropertyName, ignoreTypeDifference));
-
-                            if (sourcePropertySymbol is not null)
-                            {
-                                ITypeSymbol destinationTypeSymbol = null;
-
-                                if (ignoreTypeDifference)
-                                    destinationTypeSymbol = ps.Type;
-
-                                propertyMapHolders.RemoveAll(pmh => pmh.DestinationPropertySymbol.IsEqual(dstSymbol, ps, context.Compilation, receiver.SyntaxNode, receiver.Diagnostics));
-                                propertyMapHolders.Add(new PropertyMapHolder(ps, sourcePropertySymbol, DestinationTypeSymbol: destinationTypeSymbol));
-                            }
-                        }
-
-                        //AttributeData psBaseTypeMapAttribute = ps.Type.GetAttributes().SingleOrDefault(ad => ad.AttributeClass.Name.Equals(MapFromAttributeSource.FullyQualifiedName));
-
-                            //if (psBaseTypeMapAttribute is not null)
-                            //{
-                            //    IEnumerable<IMethodSymbol> methods = ((INamedTypeSymbol)psBaseTypeMapAttribute.ConstructorArguments.ElementAt(0).Value).GetMembers().OfType<IMethodSymbol>();
-                            //    propertyMapHolders.Add(new PropertyMapHolder(ps, DestinationPropertyMappedTypeMethods: methods));
-                            //}
+                        EnlistDecoratedDestinationProperties(context, receiver, dstSymbol, ps, srcSymbol, srcPropertySymbols, propertyMapHolders);
                     }
 
                     MappingMetaData mmd = new(dstSymbol.ContainingNamespace.ToDisplayString(),
@@ -85,7 +50,7 @@ namespace EasyMapper.Core
                         propertyMapHolders,
                         injectableNameSpaces);
 
-                    context.AddSource(MappedClassSource.Build(mmd, context.Compilation));
+                    context.AddSource(MappedClassSource.Build(mmd, context.Compilation, receiver.Diagnostics));
                 }
 
                 if (receiver.Diagnostics.Any())
@@ -99,14 +64,55 @@ namespace EasyMapper.Core
             {
                 SourceCode mapFromAttributeSource = new MapFromAttributeSource().Build();
                 SourceCode mapPropertyFromAttributeSource = new MapPropertyFromAttributeSource().Build();
-                SourceCode mapConverterAttributeSource = new MapConverterForAttributeSource().Build();
                 
                 i.AddSource(mapFromAttributeSource.Filename, mapFromAttributeSource.Body);
                 i.AddSource(mapPropertyFromAttributeSource.Filename, mapPropertyFromAttributeSource.Body);
-                //i.AddSource(mapConverterAttributeSource.Filename, mapConverterAttributeSource.Body);
             });
 
-            context.RegisterForSyntaxNotifications(() => new MapFromSyntaxReciever());
+            context.RegisterForSyntaxNotifications(() => new MapFromSyntaxReceiver());
         }
+
+        #region Utils
+
+        void EnlistDecoratedDestinationProperties(GeneratorExecutionContext context, MapFromSyntaxReceiver receiver, INamedTypeSymbol dstSymbol, IPropertySymbol destPropertySymbol, INamedTypeSymbol srcSymbol, IEnumerable<IPropertySymbol> srcPropertySymbols, List<PropertyMapHolder> propertyMapHolders)
+            {
+                AttributeData mapPropertyFormAttributeData = destPropertySymbol.GetAttributes().SingleOrDefault(at => at.AttributeClass?.ToDisplayString() == new MapPropertyFromAttributeSource().FullyQualifiedName);
+
+                if (mapPropertyFormAttributeData is not null)
+                {
+                    string differentSourcePropertyName = (string) mapPropertyFormAttributeData.ConstructorArguments.ElementAt(0).Value;
+                    bool ignoreTypeDifference = (bool) (mapPropertyFormAttributeData.ConstructorArguments.ElementAt(1).Value ?? false);
+                    
+                    IPropertySymbol sourcePropertySymbol = srcPropertySymbols.SingleOrDefault(sps => 
+                        destPropertySymbol.IsEqual(srcSymbol, sps, context.Compilation, receiver.SyntaxNode, receiver.Diagnostics, differentSourcePropertyName, ignoreTypeDifference));
+
+                    if (sourcePropertySymbol is not null)
+                    {
+                        if (ignoreTypeDifference)
+                        {
+                            bool isConvertible = true;
+
+                            if (!destPropertySymbol.Type.IsPrimitive()) 
+                            {
+                                receiver.Diagnostics.Add(Diagnostic.Create(DiagnosticBuilder.DestinationPropertyIsNotConvertible.Build(), destPropertySymbol.Locations.First(), destPropertySymbol, destPropertySymbol.Type));
+                                isConvertible = false;
+                            }
+
+                            if (!sourcePropertySymbol.Type.IsPrimitive()) 
+                            {
+                                receiver.Diagnostics.Add(Diagnostic.Create(DiagnosticBuilder.SourcePropertyIsNotConvertible.Build(), sourcePropertySymbol.Locations.First(), sourcePropertySymbol, sourcePropertySymbol.Type));
+                                isConvertible = false;
+                            }
+
+                            ignoreTypeDifference = isConvertible;
+                        }
+
+                        propertyMapHolders.RemoveAll(pmh => pmh.DestinationPropertySymbol.IsEqual(dstSymbol, destPropertySymbol, context.Compilation, receiver.SyntaxNode, receiver.Diagnostics));
+                        propertyMapHolders.Add(new PropertyMapHolder(destPropertySymbol, sourcePropertySymbol, ignoreTypeDifference));
+                    }
+                }
+            }
+
+        #endregion
     }
 }

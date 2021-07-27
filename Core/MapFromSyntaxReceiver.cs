@@ -8,26 +8,36 @@ using EasyMapper.Sources;
 
 namespace EasyMapper.Core
 {
-    public sealed class MapFromSyntaxReciever : ISyntaxContextReceiver
+    public sealed class MapFromSyntaxReceiver : ISyntaxContextReceiver
     {
+        #region Fields
+
+        private readonly MapFromAttributeSource _mapFromAttributeSource = new();
+
+        #endregion
+
+        #region Properties
+
         public List<(DeclarationType declarationType, INamedTypeSymbol dstSymbol, INamedTypeSymbol srcSymbol)> MappingAddressList { get; private set; } = new();
         public List<Diagnostic> Diagnostics { get; set; } = new();
         public SyntaxNode SyntaxNode { get; private set; }
         public SemanticModel SemanticModel { get; private set; }
 
+        #endregion
+
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {
             SyntaxNode = context.Node;
             SemanticModel = context.SemanticModel;
-            (AttributeData ad, INamedTypeSymbol ts) payload = new(null, null);
             DeclarationType declarationType = DeclarationType.Class;
+            (AttributeData ad, ISymbol sb) payload = new(null, null);
 
             if (SyntaxNode is ClassDeclarationSyntax cds)
-                payload = ValidateAttributes(SemanticModel, cds);
+                cds.HasAttribute(SemanticModel, _mapFromAttributeSource.FullyQualifiedName, out payload);
             else if (SyntaxNode is RecordDeclarationSyntax rds)
             {
                 declarationType = DeclarationType.Record;
-                payload = ValidateAttributes(SemanticModel, rds);
+                rds.HasAttribute(SemanticModel, _mapFromAttributeSource.FullyQualifiedName, out payload);
             }
 
             if (payload.ad is not null)
@@ -35,22 +45,9 @@ namespace EasyMapper.Core
                 if (!payload.ad.ConstructorArguments.IsEmpty)
                 {
                     object argumentValue = payload.ad.ConstructorArguments.ElementAt(0).Value;
-                    MappingAddressList.Add((declarationType, payload.ts, (INamedTypeSymbol)argumentValue));
+                    MappingAddressList.Add((declarationType, (INamedTypeSymbol)payload.sb, (INamedTypeSymbol)argumentValue));
                 }
             }
-        }
-
-        private (AttributeData, INamedTypeSymbol) ValidateAttributes(SemanticModel semanticModel, TypeDeclarationSyntax cds)
-        {
-            AttributeData attributeData = null;
-
-            INamedTypeSymbol typeSymbol = semanticModel.GetDeclaredSymbol(cds) as INamedTypeSymbol;
-            System.Collections.Immutable.ImmutableArray<AttributeData> attributes = typeSymbol.GetAttributes();
-
-            if (attributes.Any())
-                attributeData = attributes.SingleOrDefault(ad => ad.AttributeClass.ToDisplayString() == new MapFromAttributeSource().FullyQualifiedName);
-
-            return (attributeData, typeSymbol);
         }
     }
 

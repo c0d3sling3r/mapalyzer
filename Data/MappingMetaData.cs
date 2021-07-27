@@ -10,18 +10,14 @@ namespace System.Runtime.CompilerServices
 
 namespace EasyMapper.Data
 {
-    internal record MappingMetaData (string Namespace,
+    internal record MappingMetaData (string DestinationNamespace,
         string SourceTypeName,
         string DestinationTypeName,
-        IEnumerable<PropertyMapHolder> PropertyMapHolders, // Key=PropertySymbol Value=ConverterFieldSymbol
+        List<PropertyMapHolder> PropertyMapHolders, // Key=PropertySymbol Value=ConverterFieldSymbol
         IEnumerable<InjectableNameSpace> InjectableNameSpaces
     );
 
-    internal record PropertyMapHolder(IPropertySymbol DestinationPropertySymbol, 
-        IPropertySymbol SourcePropertySymbol = null, 
-        IFieldSymbol ConverterFieldSymbol = null,
-        IEnumerable<IMethodSymbol> DestinationPropertyMappedTypeMethods = null,
-        ITypeSymbol DestinationTypeSymbol = null);
+    internal record PropertyMapHolder(IPropertySymbol DestinationPropertySymbol, IPropertySymbol SourcePropertySymbol = null, bool ForceConversion = false);
 
     internal record InjectableNameSpace(string NameSpace, bool ContainsSourceClass = false);
 }

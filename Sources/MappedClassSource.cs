@@ -12,6 +12,7 @@ namespace EasyMapper.Sources
 {
     internal static class MappedClassSource
     {
+        static List<Diagnostic> _diagnostics;
         static string _sourceTypeCamelCaseName;
         static string _destinationTypeCamelCaseName;
 
@@ -20,26 +21,26 @@ namespace EasyMapper.Sources
             SourceBuilder sourceBuilder = new();
             
             if (mappingMetaData.PropertyMapHolders.Any())
-            {
-                string sourceNameSpace = mappingMetaData.InjectableNameSpaces.Single(ins => ins.ContainsSourceClass).NameSpace;
-                string classCtorArguments = string.Join(", ", ProvidePropertiesWithType(mappingMetaData.PropertyMapHolders));
-                
+            {                
                 _destinationTypeCamelCaseName = mappingMetaData.DestinationTypeName.ToCamelCase();
                 _sourceTypeCamelCaseName = mappingMetaData.SourceTypeName.ToCamelCase();
+                
+                string sourceNameSpace = mappingMetaData.InjectableNameSpaces.Single(ins => ins.ContainsSourceClass).NameSpace;
+                string classCtorArguments = string.Join(", ", ProvidePropertiesWithType(mappingMetaData.PropertyMapHolders));
 
                 using (sourceBuilder)
                 {
                     sourceBuilder.WriteLine(Constants.GeneratedFileHeader)
 
-                        //Writes nameSpaces
+                        // Writes nameSpaces
                         .WriteLine("using System;")
                         .WriteLine("using System.Collections.Generic;")
                         .WriteLine("using System.Linq;")
-                        .WriteClassNameSpaces(mappingMetaData.InjectableNameSpaces.Select(ins => ins.NameSpace).ToList())
+                        .WriteClassNameSpaces(mappingMetaData.InjectableNameSpaces.Where(ins => !ins.ContainsSourceClass).Select(ins => ins.NameSpace).ToList())
                         .WriteLine()
 
-                        // Writes namespaces
-                        .WriteLine("namespace {0}", mappingMetaData.Namespace)
+                        // Writes class namespace
+                        .WriteLine("namespace {0}", mappingMetaData.DestinationNamespace)
                         .WriteOpeningBracket()
 
                         // Writes class
@@ -50,39 +51,49 @@ namespace EasyMapper.Sources
                         .WriteConstructorPropertiesInitializations(mappingMetaData.PropertyMapHolders)
                         .WriteClosingBracket()
                         .WriteClosingBracket() // class
+                        .WriteClosingBracket() // class namespace
                         .WriteLine()
+
+                        // Writes extension namespace
+                        .WriteLine("namespace {0}", compilation.AssemblyName)
+                        .WriteOpeningBracket()
 
                         // Writes fromTo extension
                         .WriteLine("public static partial class {0}Extensions", mappingMetaData.DestinationTypeName)
                         .WriteOpeningBracket()
-                        .WriteLine("#nullable enable")
                         .WriteLine()
-                        .WriteLine("public static {0} To{0}(this {1} {2}, Action<{1}, {0}> postMappingAction = null)", 
+                        .WriteLine("public static {0}.{1} To{1}(this {2}.{3} source_{4}, Action<{2}.{3}, {0}.{1}> postMappingAction = null)", 
+                            mappingMetaData.DestinationNamespace,
                             mappingMetaData.DestinationTypeName, 
+                            sourceNameSpace,
                             mappingMetaData.SourceTypeName, 
                             _sourceTypeCamelCaseName)
 
                         .WriteOpeningBracket()
-                        .WriteLine("if ({0} is null)", _sourceTypeCamelCaseName)
-                        .WriteIndentedLine("throw new ArgumentNullException(nameof({0}));", _sourceTypeCamelCaseName)
+                        .WriteLine("if (source_{0} is null)", _sourceTypeCamelCaseName)
+                        .WriteIndentedLine("throw new ArgumentNullException(nameof(source_{0}));", _sourceTypeCamelCaseName)
                         .WriteLine()
                         .WriteConverterReturnExpression(mappingMetaData, compilation)
                         .WriteClosingBracket()
                         .WriteLine()
 
                         // Writes fromToList extension
-                        .WriteLine("public static IEnumerable<{0}>? To{1}(this IEnumerable<{2}> {3}, Action<{2}, {0}> postMappingAction = null)", 
+                        .WriteLine("#nullable enable")
+                        .WriteLine("public static IEnumerable<{0}.{1}>? To{2}(this IEnumerable<{3}.{4}> source_{5}, Action<{3}.{4}, {0}.{1}>? postMappingAction = null)", 
+                            mappingMetaData.DestinationNamespace,
                             mappingMetaData.DestinationTypeName, 
                             mappingMetaData.DestinationTypeName.Pluralize(), 
+                            sourceNameSpace,
                             mappingMetaData.SourceTypeName, 
                             _sourceTypeCamelCaseName.Pluralize())
 
                         .WriteOpeningBracket()
-                        .WriteLine("return {0}?.Select(i => i.To{1}(postMappingAction));", _sourceTypeCamelCaseName.Pluralize(), mappingMetaData.DestinationTypeName)
+                        .WriteLine("return source_{0}?.Select(i => i.To{1}(postMappingAction));", _sourceTypeCamelCaseName.Pluralize(), mappingMetaData.DestinationTypeName)
                         .WriteClosingBracket()
+                        .WriteLine("#nullable disable")
 
                         .WriteClosingBracket() // extension class
-                        .WriteClosingBracket(); // namespace
+                        .WriteClosingBracket(); // extension namespace
                 }
             }
 
@@ -99,36 +110,40 @@ namespace EasyMapper.Sources
             return sourceBuilder;
         }
 
-        private static SourceBuilder WriteConstructorPropertiesInitializations(this SourceBuilder sourceBuilder, IEnumerable<PropertyMapHolder> propertyMapHolders)
+        private static SourceBuilder WriteConstructorPropertiesInitializations(this SourceBuilder sourceBuilder, List<PropertyMapHolder> propertyMapHolders)
         {
-            ((List<PropertyMapHolder>)propertyMapHolders).ForEach(p => sourceBuilder.WriteLine("{0} = {1};", p.DestinationPropertySymbol.Name, p.DestinationPropertySymbol.Name.ToCamelCase()));
+            propertyMapHolders.ForEach(p => sourceBuilder.WriteLine("{0} = {1};", p.DestinationPropertySymbol.Name, p.DestinationPropertySymbol.Name.ToCamelCase()));
             return sourceBuilder;
         }
 
         private static SourceBuilder WriteConverterReturnExpression(this SourceBuilder sourceBuilder, MappingMetaData mappingMetaData, Compilation compilation)
         {
-            sourceBuilder.Write("{0} {1} = new {0}(", mappingMetaData.DestinationTypeName, mappingMetaData.DestinationTypeName.ToCamelCase());
+            string line = string.Empty;
+            sourceBuilder.Write("{0}.{1} {2} = new {0}.{1}(", mappingMetaData.DestinationNamespace, mappingMetaData.DestinationTypeName, mappingMetaData.DestinationTypeName.ToCamelCase());
 
             foreach (PropertyMapHolder pmh in mappingMetaData.PropertyMapHolders)
             {
-                if (pmh.ConverterFieldSymbol is not null)
-                    sourceBuilder.WriteIndented("{0}.{1}({2})", mappingMetaData.DestinationTypeName, pmh.ConverterFieldSymbol.Name, _sourceTypeCamelCaseName);
-                else if (pmh.SourcePropertySymbol is not null)
+                if (pmh.SourcePropertySymbol is not null)
                 {
-                    if (pmh.DestinationTypeSymbol is not null)
-                        sourceBuilder.WriteIndented("Convert.To{2}({0}.{1})", _sourceTypeCamelCaseName, pmh.SourcePropertySymbol.Name, pmh.DestinationTypeSymbol.Name);
+                    if (pmh.ForceConversion)
+                        line = string.Format("Convert.To{2}(source_{0}.{1})", _sourceTypeCamelCaseName, pmh.SourcePropertySymbol.Name, pmh.DestinationPropertySymbol.Type.Name);
                     else
-                        sourceBuilder.WriteIndented("{0}.{1}", _sourceTypeCamelCaseName, pmh.SourcePropertySymbol.Name);
+                        line = string.Format("source_{0}.{1}", _sourceTypeCamelCaseName, pmh.SourcePropertySymbol.Name);
                 }
 
-                if (mappingMetaData.PropertyMapHolders.ToList().IndexOf(pmh) != mappingMetaData.PropertyMapHolders.Count() - 1)
-                    sourceBuilder.WriteLine(",");
+                if (!string.IsNullOrEmpty(line))
+                {
+                    if (mappingMetaData.PropertyMapHolders.ToList().IndexOf(pmh) > 0)
+                        sourceBuilder.WriteLine(",");
+
+                    sourceBuilder.Write(line);
+                }
             }
 
             sourceBuilder.WriteLine(");").WriteLine();
 
             sourceBuilder.WriteLine("if (postMappingAction is not null)")
-                .WriteIndentedLine("postMappingAction({1}, {0});", _destinationTypeCamelCaseName, _sourceTypeCamelCaseName)
+                .WriteIndentedLine("postMappingAction(source_{1}, {0});", _destinationTypeCamelCaseName, _sourceTypeCamelCaseName)
                 .WriteLine()
                 .WriteLine("return {0};", _destinationTypeCamelCaseName);
 
@@ -137,9 +152,13 @@ namespace EasyMapper.Sources
 
         #endregion
 
-        private static IEnumerable<string> ProvidePropertiesWithType(IEnumerable<PropertyMapHolder> propertyMapHolders) =>
+        private static IEnumerable<string> ProvidePropertiesWithType(List<PropertyMapHolder> propertyMapHolders) =>
             propertyMapHolders.Select(pmh => string.Format("{0} {1}", pmh.DestinationPropertySymbol.Type.ToDisplayString(), pmh.DestinationPropertySymbol.Name.ToCamelCase()));
 
-        internal static SourceCode Build(MappingMetaData mmd, Compilation cmp) => new(ProvideSource(mmd, cmp), $"Map{mmd.SourceTypeName}To{mmd.DestinationTypeName}.generated.cs");
+        internal static SourceCode Build(MappingMetaData mmd, Compilation cmp, List<Diagnostic> diagnostics)
+        {
+            _diagnostics = diagnostics;
+            return new(ProvideSource(mmd, cmp), $"Map{mmd.SourceTypeName}To{mmd.DestinationTypeName}.generated.cs");
+        }
     }
 }

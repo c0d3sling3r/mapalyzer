@@ -30,7 +30,7 @@ namespace EasyMapper
                              compilation.HasImplicitConversion(dstPropertySymbol.Type, srcPropertySymbol.Type) ||
                              dstPropertySymbol.Type.Name == srcPropertySymbol.Type.Name;
                 else
-                    diagnostics.Add(DiagnosticBuilder.SameNamePropertyDifferentType(dstPropertySymbol.Locations.First(), srcTypeSymbol, srcPropertySymbol, dstPropertySymbol));
+                    diagnostics.Add(Diagnostic.Create(DiagnosticBuilder.SameNamePropertyDifferentType.Build(), dstPropertySymbol.Locations.First(), srcTypeSymbol, srcPropertySymbol, dstPropertySymbol));
             }
 
             return check;
@@ -66,6 +66,29 @@ namespace EasyMapper
             }
 
             return members;
+        }
+
+        internal static bool IsPrimitive(this ITypeSymbol typeSymbol) 
+        {
+            return typeSymbol.SpecialType switch
+            {
+                SpecialType.System_Char or 
+                SpecialType.System_Boolean or 
+                SpecialType.System_Byte or 
+                SpecialType.System_SByte or 
+                SpecialType.System_Int16 or 
+                SpecialType.System_UInt16 or 
+                SpecialType.System_Int32 or 
+                SpecialType.System_UInt32 or 
+                SpecialType.System_Int64 or 
+                SpecialType.System_UInt64 or 
+                SpecialType.System_Decimal or 
+                SpecialType.System_Single or 
+                SpecialType.System_Double or 
+                SpecialType.System_String or 
+                SpecialType.System_DateTime => true,
+                _ => false,
+            };
         }
     }
 }
