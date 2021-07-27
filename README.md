@@ -29,6 +29,11 @@ You only need to:
     Install-Package EasyMapper.Net -Version 1.0.0-alpha
     ```
 
+3. via **.csproj**:
+    ```xml
+    <PackageReference Include="EasyMapper.Net" Version="1.0.0-alpha" />
+    ```
+
 > :warning: **Attention**: You must rebuild your project after addition in order to get the library to work.
 
 ### Then, Decorating the destination class
