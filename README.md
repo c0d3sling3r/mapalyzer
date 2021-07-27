@@ -20,13 +20,13 @@ You only need to:
 1. via **`dotnet-cli`**:
 
     ```sh
-    dotnet add package EasyMapper.Net --version 0.1.1
+    dotnet add package EasyMapper.Net --version 1.0.0-alpha
     ```
 
 2. via **NuGet console**:
 
    ```powershell
-    Install-Package EasyMapper.Net -Version 0.1.1
+    Install-Package EasyMapper.Net -Version 1.0.0-alpha
     ```
 
 > :warning: **Attention**: You must rebuild your project after addition in order to get the library to work.
