@@ -34,7 +34,10 @@ You only need to:
     <PackageReference Include="EasyMapper.Net" Version="1.0.0-alpha" />
     ```
 
-> :warning: **Attention**: You must clean the solution, restart the Visual Studio and rebuild the solution in order to get the library to work.
+### :warning: Attentions
+
+- If using **Visual Studio**, you must clean the solution, restart the Visual Studio and rebuild the solution in order to get the library to work.
+- If using **VSCode**, you must execute `dotnet restore && dotnet build` and restart VSCode in order to get the library to work.
 
 ### Then, Decorating the destination class
 
