@@ -2,24 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	  <AssemblyName>EasyMapper</AssemblyName>
-	  <RootNamespace>EasyMapper</RootNamespace>
-	  <LangVersion>9.0</LangVersion>
-	  <PackageId>EasyMapper.Net</PackageId>
-	  <Title>EasyMapper.Net</Title>
-	  <PackageVersion>0.1.0</PackageVersion>
-	  <Authors>Mojtaba Shojajou</Authors>
-	  <Company>Shojajou</Company>
-	  <Description>A boilerplate library built by the C# Analayzers for mapping the DotNET domain classes to the models of the application.</Description>
-	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	  <PackageTags>mapper boilerplate domain design object mvc automapper</PackageTags>
-	  <RespositoryType>git</RespositoryType>
-	  <RespositoryUrl>https://github.com/shojajou/easy-mapper</RespositoryUrl>
-	  <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
-	  <EmbedUntrackedSources>true</EmbedUntrackedSources>
-	  <IncludeSymbols>true</IncludeSymbols>
-	  <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	<AssemblyName>EasyMapper</AssemblyName>
+	<RootNamespace>EasyMapper</RootNamespace>
+	<LangVersion>9.0</LangVersion>
+	<PackageId>EasyMapper.Net</PackageId>
+	<Title>EasyMapper.Net</Title>
+	<PackageVersion>1.0.0-alpha</PackageVersion>
+	<Authors>Mojtaba Shojajou</Authors>
+	<Company>Shojajou</Company>
+	<Description>A boilerplate library built by the C# Analyzers for mapping the DotNET domain classes to the models of the application.</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageTags>mapper boilerplate domain design object mvc automapper</PackageTags>
+	<RespositoryType>git</RespositoryType>
+	<RespositoryUrl>https://github.com/shojajou/easy-mapper</RespositoryUrl>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<IncludeSymbols>false</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
