@@ -11,7 +11,7 @@ You only need to:
 1. add the *library* in your project's refrences
 2. decorate your destination classes with our valid *attributes*.
 
-:thinking: **But wait! what about the more complex convertions?** Don't worry. We considered a way of injecting your out-of-box mapping rules whenever you want to use the mapping.
+:thinking: **But wait! what about the more complex conversions?** Don't worry. We considered a way of injecting your out-of-box mapping rules whenever you want to use the mapping.
 
 # Manual
 
