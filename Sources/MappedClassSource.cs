@@ -4,11 +4,11 @@ using System.Linq;
 
 using Microsoft.CodeAnalysis;
 
-using EasyMapper.Common;
-using EasyMapper.Data;
-using EasyMapper.Builders;
+using Mapalyzer.Common;
+using Mapalyzer.Data;
+using Mapalyzer.Builders;
 
-namespace EasyMapper.Sources
+namespace Mapalyzer.Sources
 {
     internal static class MappedClassSource
     {

@@ -4,7 +4,7 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 
-namespace EasyMapper.Builders
+namespace Mapalyzer.Builders
 {
     internal class DiagnosticBuilder
     {

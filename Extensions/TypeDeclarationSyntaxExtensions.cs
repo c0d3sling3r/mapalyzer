@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace EasyMapper
+namespace Mapalyzer
 {
     public static class MemberDeclarationSyntaxExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EasyMapper
+namespace Mapalyzer
 {
     internal static class StringExtensions
     {

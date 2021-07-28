@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EasyMapper.Common
+namespace Mapalyzer.Common
 {
     internal class Constants
     {

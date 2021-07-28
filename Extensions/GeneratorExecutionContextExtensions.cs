@@ -4,9 +4,9 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 
-using EasyMapper.Data;
+using Mapalyzer.Data;
 
-namespace EasyMapper
+namespace Mapalyzer
 {
     internal static class GeneratorExecutionContextExtensions
     {

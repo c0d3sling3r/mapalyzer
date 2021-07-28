@@ -1,4 +1,4 @@
-# **EasyMapper&#46;NET**
+# **Mapalyzer** (ie: Mapping with Analyzers)
 
 **Guess what? It's a piece of cake** :cake:
 
@@ -20,18 +20,18 @@ You only need to:
 1. via **`dotnet-cli`**:
 
     ```sh
-    dotnet add package EasyMapper.Net --version 1.0.0-alpha
+    dotnet add package Mapalyzer --version 1.0.0-alpha
     ```
 
 2. via **NuGet console**:
 
    ```powershell
-    Install-Package EasyMapper.Net -Version 1.0.0-alpha
+    Install-Package Mapalyzer -Version 1.0.0-alpha
     ```
 
 3. via **.csproj**:
     ```xml
-    <PackageReference Include="EasyMapper.Net" Version="1.0.0-alpha" />
+    <PackageReference Include="Mapalyzer" Version="1.0.0-alpha" />
     ```
 
 ### :warning: Attentions

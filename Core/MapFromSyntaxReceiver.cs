@@ -4,9 +4,9 @@ using System.Linq;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using EasyMapper.Sources;
+using Mapalyzer.Sources;
 
-namespace EasyMapper.Core
+namespace Mapalyzer.Core
 {
     public sealed class MapFromSyntaxReceiver : ISyntaxContextReceiver
     {

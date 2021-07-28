@@ -6,9 +6,9 @@ using System.Text;
 
 using Microsoft.CodeAnalysis;
 
-using EasyMapper.Builders;
+using Mapalyzer.Builders;
 
-namespace EasyMapper
+namespace Mapalyzer
 {
     internal static class SymbolExtensions
     {

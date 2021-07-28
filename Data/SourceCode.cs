@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EasyMapper.Data 
+namespace Mapalyzer.Data 
 {
     internal class SourceCode
     {

@@ -8,10 +8,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-using EasyMapper.Sources;
-using EasyMapper.Builders;
+using Mapalyzer.Sources;
+using Mapalyzer.Builders;
 
-namespace EasyMapper.Core
+namespace Mapalyzer.Core
 {
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
     public class MapPropertyFromAnalyzer : DiagnosticAnalyzer

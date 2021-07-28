@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using EasyMapper.Common;
-using EasyMapper.Builders;
-using EasyMapper.Sources.Abstracts;
+using Mapalyzer.Common;
+using Mapalyzer.Builders;
+using Mapalyzer.Sources.Abstracts;
 
-namespace EasyMapper.Sources
+namespace Mapalyzer.Sources
 {
     internal class MapFromAttributeSource : AAttributeSource
     {

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-using EasyMapper.Common;
-using EasyMapper.Data;
+using Mapalyzer.Common;
+using Mapalyzer.Data;
 
-namespace EasyMapper.Sources.Abstracts
+namespace Mapalyzer.Sources.Abstracts
 {
     abstract class AAttributeSource
     {

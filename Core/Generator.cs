@@ -4,11 +4,11 @@ using System.Linq;
 
 using Microsoft.CodeAnalysis;
 
-using EasyMapper.Data;
-using EasyMapper.Sources;
-using EasyMapper.Builders;
+using Mapalyzer.Data;
+using Mapalyzer.Sources;
+using Mapalyzer.Builders;
 
-namespace EasyMapper.Core
+namespace Mapalyzer.Core
 {
     [Generator]
     public class MapGenerator : ISourceGenerator

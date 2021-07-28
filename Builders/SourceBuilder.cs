@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace EasyMapper.Builders
+namespace Mapalyzer.Builders
 {
     internal sealed class SourceBuilder : IDisposable
     {

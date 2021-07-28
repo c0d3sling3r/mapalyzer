@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<AssemblyName>EasyMapper</AssemblyName>
-	<RootNamespace>EasyMapper</RootNamespace>
+	<AssemblyName>Mapalyzer</AssemblyName>
+	<RootNamespace>Mapalyzer</RootNamespace>
 	<LangVersion>9.0</LangVersion>
-	<PackageId>EasyMapper.Net</PackageId>
-	<Title>EasyMapper.Net</Title>
+	<PackageId>Mapalyzer</PackageId>
+	<Title>Mapalyzer</Title>
 	<PackageVersion>1.0.0-alpha</PackageVersion>
 	<Authors>Mojtaba Shojajou</Authors>
 	<Company>Shojajou</Company>
@@ -14,7 +14,7 @@
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageTags>mapper boilerplate domain design object mvc automapper</PackageTags>
 	<RespositoryType>git</RespositoryType>
-	<RespositoryUrl>https://github.com/shojajou/easy-mapper</RespositoryUrl>
+	<RespositoryUrl>https://github.com/shojajou/mapalyzer</RespositoryUrl>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>

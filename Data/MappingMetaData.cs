@@ -8,7 +8,7 @@ namespace System.Runtime.CompilerServices
     internal static class IsExternalInit { }
 }
 
-namespace EasyMapper.Data
+namespace Mapalyzer.Data
 {
     internal record MappingMetaData (string DestinationNamespace,
         string SourceTypeName,
