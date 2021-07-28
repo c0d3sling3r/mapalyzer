@@ -2,7 +2,7 @@
 
 **Guess what? It's a piece of cake** :cake:
 
-A boilerplate built by the C# Analyzers for mapping the DotNET domain classes to the models of the application.
+A boilerplate was built using C# Analyzers for object-to-object mapping in DotNET.
 
 Beacuase this project was developed using the standard [**Roslyn Source Generators**](https://github.com/dotnet/roslyn-sdk/tree/main/samples/CSharp/SourceGenerators), you won't need to consider any configuration codes in your setup classess.
 
@@ -11,7 +11,7 @@ You only need to:
 1. add the *library* in your project's refrences
 2. decorate your destination classes with our valid *attributes*.
 
-:thinking: **But wait! what about the more complex convertions?** Don't worry. We considered a way of injecting your out-of-box mapping method whenever you want to invoke generated mapper method.
+:thinking: **But wait! what about the more complex convertions?** Don't worry. We considered a way of injecting your out-of-box mapping rules whenever you want to use the mapping.
 
 # Manual
 
