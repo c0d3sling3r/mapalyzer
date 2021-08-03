@@ -43,9 +43,15 @@ namespace Mapalyzer.Builders
             "{0}.{1} with type '{2}' from source cannot be mapped with its match with type '{3}'.",
             DiagnosticSeverity.Info);
 
-        internal static DiagnosticBuilder ParentNodeIsNotDecorated => new($"{_warningReportIdPrefix}000", 
+        internal static DiagnosticBuilder ParentNodeIsNotDecorated => new($"{_infoReportIdPrefix}001", 
+            "Property mapping is unclear.", 
+            "You tried to map a property({0}) which its parent class({1}) has not been mapped yet. If this class is itself a parent and you provided mapping for the children, ignore this message. " + 
+                "Otherwise there will be no property mapping.",
+            DiagnosticSeverity.Info);
+
+        internal static DiagnosticBuilder SourceClassDoesNotHaveDesiredProperty => new($"{_warningReportIdPrefix}000", 
             "Property mapping was unsuccessful.", 
-            "You tried to map a property({0}) which its parent class({1}) has not been mapped yet. Please provide {1} with the MapFrom attribute first.",
+            "There is no matched primitive property in source class({0}) with the name({1}) your provided.",
             DiagnosticSeverity.Warning);
 
         internal static DiagnosticBuilder SourcePropertyIsNotConvertible => new($"{_warningReportIdPrefix}001", 

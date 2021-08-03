@@ -23,7 +23,7 @@ namespace Mapalyzer.Core
 
         #endregion
 
-        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticBuilder.ParentNodeIsNotDecorated.Build());
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create(DiagnosticBuilder.ParentNodeIsNotDecorated.Build(), DiagnosticBuilder.SourceClassDoesNotHaveDesiredProperty.Build());
 
         public override void Initialize(AnalysisContext context)
         {
@@ -39,8 +39,21 @@ namespace Mapalyzer.Core
             {
                 if (pds.HasAttribute(context.SemanticModel, _mapPropertyFromAttributeSource.FullyQualifiedName, out (AttributeData ad, ISymbol ps) payload)) 
                 {
-                    if (!((TypeDeclarationSyntax)pds.Parent).HasAttribute(context.SemanticModel, _mapFromAttributeSource.FullyQualifiedName, out (AttributeData ad, ISymbol ts) parentPayload))
+                    if (((ClassDeclarationSyntax)pds.Parent).HasAttribute(context.SemanticModel, _mapFromAttributeSource.FullyQualifiedName, out (AttributeData ad, ISymbol ts) parentPayload)) 
+                    {
+                        if (!parentPayload.ad.ConstructorArguments.IsEmpty)
+                        {
+                            object parentSourceTypeValue = parentPayload.ad.ConstructorArguments.ElementAt(0).Value;
+                            object sourcePropertyNameValue = payload.ad.ConstructorArguments.ElementAt(0).Value;
+                            
+                            if (!((INamedTypeSymbol)parentSourceTypeValue).GetAllMembers().OfType<IPropertySymbol>().Where(ds => ds.Type.IsPrimitive()).Any(ps => ps.Name == (string)sourcePropertyNameValue))
+                                context.ReportDiagnostic(Diagnostic.Create(DiagnosticBuilder.SourceClassDoesNotHaveDesiredProperty.Build(), pds.GetLocation(), ((INamedTypeSymbol)parentSourceTypeValue).Name, (string)sourcePropertyNameValue));
+                        }
+                    }
+                    else 
+                    {
                         context.ReportDiagnostic(Diagnostic.Create(DiagnosticBuilder.ParentNodeIsNotDecorated.Build(), pds.GetLocation(), payload.ps.Name, parentPayload.ts.Name));
+                    }
                 }
 
             }
