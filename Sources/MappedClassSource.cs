@@ -19,83 +19,80 @@ namespace Mapalyzer.Sources
         private static string ProvideSource(MappingMetaData mappingMetaData, Compilation compilation)
         {
             SourceBuilder sourceBuilder = new();
+                            
+            _destinationTypeCamelCaseName = mappingMetaData.DestinationTypeName.ToCamelCase();
+            _sourceTypeCamelCaseName = mappingMetaData.SourceTypeName.ToCamelCase();
             
-            if (mappingMetaData.PropertyMapHolders.Any())
-            {                
-                _destinationTypeCamelCaseName = mappingMetaData.DestinationTypeName.ToCamelCase();
-                _sourceTypeCamelCaseName = mappingMetaData.SourceTypeName.ToCamelCase();
-                
-                string sourceNameSpace = mappingMetaData.InjectableNameSpaces.Single(ins => ins.ContainsSourceClass).NameSpace;
-                string classCtorArguments = string.Join(", ", ProvidePropertiesWithType(mappingMetaData.PropertyMapHolders));
+            string sourceNameSpace = mappingMetaData.InjectableNameSpaces.Single(ins => ins.ContainsSourceClass).NameSpace;
+            string classCtorArguments = string.Join(", ", ProvidePropertiesWithType(mappingMetaData.PropertyMapHolders));
 
-                using (sourceBuilder)
-                {
-                    sourceBuilder.WriteLine(Constants.GeneratedFileHeader)
+            using (sourceBuilder)
+            {
+                sourceBuilder.WriteLine(Constants.GeneratedFileHeader)
 
-                        // Writes nameSpaces
-                        .WriteLine("using System;")
-                        .WriteLine("using System.Collections.Generic;")
-                        .WriteLine("using System.Linq;")
-                        .WriteClassNameSpaces(mappingMetaData.InjectableNameSpaces.Where(ins => !ins.ContainsSourceClass).Select(ins => ins.NameSpace).ToList())
-                        .WriteLine()
+                    // Writes nameSpaces
+                    .WriteLine("using System;")
+                    .WriteLine("using System.Collections.Generic;")
+                    .WriteLine("using System.Linq;")
+                    .WriteClassNameSpaces(mappingMetaData.InjectableNameSpaces.Where(ins => !ins.ContainsSourceClass).Select(ins => ins.NameSpace).ToList())
+                    .WriteLine()
 
-                        // Writes class namespace
-                        .WriteLine("namespace {0}", mappingMetaData.DestinationNamespace)
-                        .WriteOpeningBracket()
+                    // Writes class namespace
+                    .WriteLine("namespace {0}", mappingMetaData.DestinationNamespace)
+                    .WriteOpeningBracket()
 
-                        // Writes class
-                        .WriteLine("public partial class {0}", mappingMetaData.DestinationTypeName)
-                        .WriteOpeningBracket()
-                        .WriteLine("public {0}({1})", mappingMetaData.DestinationTypeName, classCtorArguments)
-                        .WriteOpeningBracket()
-                        .WriteConstructorPropertiesInitializations(mappingMetaData.PropertyMapHolders)
-                        .WriteClosingBracket()
-                        .WriteClosingBracket() // class
-                        .WriteClosingBracket() // class namespace
-                        .WriteLine()
+                    // Writes class
+                    .WriteLine("public partial class {0}", mappingMetaData.DestinationTypeName)
+                    .WriteOpeningBracket()
+                    .WriteLine("public {0}({1})", mappingMetaData.DestinationTypeName, classCtorArguments)
+                    .WriteOpeningBracket()
+                    .WriteConstructorPropertiesInitializations(mappingMetaData.PropertyMapHolders)
+                    .WriteClosingBracket()
+                    .WriteClosingBracket() // class
+                    .WriteClosingBracket() // class namespace
+                    .WriteLine()
 
-                        // Writes extension namespace
-                        .WriteLine("namespace {0}", compilation.AssemblyName)
-                        .WriteOpeningBracket()
+                    // Writes extension namespace
+                    .WriteLine("namespace {0}", compilation.AssemblyName)
+                    .WriteOpeningBracket()
 
-                        // Writes fromTo extension
-                        .WriteLine("public static partial class {0}Extensions", mappingMetaData.DestinationTypeName)
-                        .WriteOpeningBracket()
-                        .WriteLine()
-                        .WriteLine("public static {0}.{1} To{1}(this {2}.{3} source_{4}, Action<{2}.{3}, {0}.{1}> postMappingAction = null)", 
-                            mappingMetaData.DestinationNamespace,
-                            mappingMetaData.DestinationTypeName, 
-                            sourceNameSpace,
-                            mappingMetaData.SourceTypeName, 
-                            _sourceTypeCamelCaseName)
+                    // Writes fromTo extension
+                    .WriteLine("public static partial class {0}Extensions", mappingMetaData.DestinationTypeName)
+                    .WriteOpeningBracket()
+                    .WriteLine()
+                    .WriteLine("public static {0}.{1} To{1}(this {2}.{3} source_{4}, Action<{2}.{3}, {0}.{1}> postMappingAction = null)", 
+                        mappingMetaData.DestinationNamespace,
+                        mappingMetaData.DestinationTypeName, 
+                        sourceNameSpace,
+                        mappingMetaData.SourceTypeName, 
+                        _sourceTypeCamelCaseName)
 
-                        .WriteOpeningBracket()
-                        .WriteLine("if (source_{0} is null)", _sourceTypeCamelCaseName)
-                        .WriteIndentedLine("throw new ArgumentNullException(nameof(source_{0}));", _sourceTypeCamelCaseName)
-                        .WriteLine()
-                        .WriteConverterReturnExpression(mappingMetaData, compilation)
-                        .WriteClosingBracket()
-                        .WriteLine()
+                    .WriteOpeningBracket()
+                    .WriteLine("if (source_{0} is null)", _sourceTypeCamelCaseName)
+                    .WriteIndentedLine("throw new ArgumentNullException(nameof(source_{0}));", _sourceTypeCamelCaseName)
+                    .WriteLine()
+                    .WriteConverterReturnExpression(mappingMetaData, compilation)
+                    .WriteClosingBracket()
+                    .WriteLine()
 
-                        // Writes fromToList extension
-                        .WriteLine("#nullable enable")
-                        .WriteLine("public static IEnumerable<{0}.{1}>? To{2}(this IEnumerable<{3}.{4}> source_{5}, Action<{3}.{4}, {0}.{1}>? postMappingAction = null)", 
-                            mappingMetaData.DestinationNamespace,
-                            mappingMetaData.DestinationTypeName, 
-                            mappingMetaData.DestinationTypeName.Pluralize(), 
-                            sourceNameSpace,
-                            mappingMetaData.SourceTypeName, 
-                            _sourceTypeCamelCaseName.Pluralize())
+                    // Writes fromToList extension
+                    .WriteLine("#nullable enable")
+                    .WriteLine("public static IEnumerable<{0}.{1}>? To{2}(this IEnumerable<{3}.{4}> source_{5}, Action<{3}.{4}, {0}.{1}>? postMappingAction = null)", 
+                        mappingMetaData.DestinationNamespace,
+                        mappingMetaData.DestinationTypeName, 
+                        mappingMetaData.DestinationTypeName.Pluralize(), 
+                        sourceNameSpace,
+                        mappingMetaData.SourceTypeName, 
+                        _sourceTypeCamelCaseName.Pluralize())
 
-                        .WriteOpeningBracket()
-                        .WriteLine("return source_{0}?.Select(i => i.To{1}(postMappingAction));", _sourceTypeCamelCaseName.Pluralize(), mappingMetaData.DestinationTypeName)
-                        .WriteClosingBracket()
-                        .WriteLine("#nullable disable")
+                    .WriteOpeningBracket()
+                    .WriteLine("return source_{0}?.Select(i => i.To{1}(postMappingAction));", _sourceTypeCamelCaseName.Pluralize(), mappingMetaData.DestinationTypeName)
+                    .WriteClosingBracket()
+                    .WriteLine("#nullable disable")
 
-                        .WriteClosingBracket() // extension class
-                        .WriteClosingBracket(); // extension namespace
+                    .WriteClosingBracket() // extension class
+                    .WriteClosingBracket(); // extension namespace
                 }
-            }
 
             return sourceBuilder.ToString();
         }

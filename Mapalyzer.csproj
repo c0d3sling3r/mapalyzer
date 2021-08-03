@@ -7,7 +7,7 @@
 	<LangVersion>9.0</LangVersion>
 	<PackageId>Mapalyzer</PackageId>
 	<Title>Mapalyzer</Title>
-	<PackageVersion>1.2.0-alpha</PackageVersion>
+	<PackageVersion>1.2.1-alpha</PackageVersion>
 	<Authors>Mojtaba Shojajou</Authors>
 	<Company>Shojajou</Company>
 	<Description>A boilerplate library built by the C# Analyzers for mapping the DotNET domain classes to the models of the application.</Description>
