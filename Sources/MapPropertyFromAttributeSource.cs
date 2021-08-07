@@ -10,9 +10,9 @@ namespace Mapalyzer.Sources
 {
     internal class MapPropertyFromAttributeSource : AAttributeSource
     {
-        internal override string AttributeName => "MapPropertyFrom";
+        protected override string AttributeName => "MapPropertyFrom";
 
-        internal override string ProvideSource()
+        protected override string ProvideSource()
         {
             SourceBuilder sourceBuilder = new();
 

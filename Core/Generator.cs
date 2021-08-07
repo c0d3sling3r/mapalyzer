@@ -28,7 +28,7 @@ namespace Mapalyzer.Core
                     List<InjectableNameSpace> injectableNameSpaces = new();
 
                     if (!srcSymbol.ContainingNamespace.IsGlobalNamespace)
-                        injectableNameSpaces.Add(new(srcSymbol.ContainingNamespace.ToDisplayString(), true));
+                        injectableNameSpaces.Add(new InjectableNameSpace(srcSymbol.ContainingNamespace.ToDisplayString(), true));
 
                     //TODO: check if has baseType
                     foreach (IPropertySymbol ps in srcPropertySymbols)

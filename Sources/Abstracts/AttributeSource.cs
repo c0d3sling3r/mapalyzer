@@ -11,13 +11,13 @@ namespace Mapalyzer.Sources.Abstracts
     {
         #region Meta
 
-        internal abstract string AttributeName { get; }
-        internal virtual string AttributeClassName { get => AttributeName + "Attribute"; }
-        internal virtual string FullyQualifiedName {get => Constants.SystemNamespace + "." + AttributeClassName; }
+        protected abstract string AttributeName { get; }
+        protected virtual string AttributeClassName => AttributeName + "Attribute";
+        internal virtual string FullyQualifiedName => Constants.SystemNamespace + "." + AttributeClassName;
 
         #endregion
 
-        internal abstract string ProvideSource();
+        protected abstract string ProvideSource();
 
         internal SourceCode Build() => new SourceCode(ProvideSource(), AttributeName + "Attribute.generated.cs");
     }

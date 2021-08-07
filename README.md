@@ -20,18 +20,18 @@ You only need to:
 1. via **`dotnet-cli`**:
 
     ```sh
-    dotnet add package Mapalyzer --version 1.2.1-alpha
+    dotnet add package Mapalyzer --version 1.3.0-alpha
     ```
 
 2. via **NuGet console**:
 
    ```powershell
-    Install-Package Mapalyzer -Version 1.2.1-alpha
+    Install-Package Mapalyzer -Version 1.3.0-alpha
     ```
 
 3. via **.csproj**
     ```xml
-    <PackageReference Include="Mapalyzer" Version="1.2.1-alpha" />
+    <PackageReference Include="Mapalyzer" Version="1.3.0-alpha" />
     ```
 
 ### :warning: Attentions
