@@ -17,7 +17,7 @@ namespace Mapalyzer.Core.Analyzers
 
         public PropertyContainerDecorationAnalyzer(ICollection<DiagnosticDescriptor> supportedDiagnosticsList)
         {
-            DiagnosticBuilder.PropertyContainerDecorationAnalyzer.Build();
+            supportedDiagnosticsList.Add(DiagnosticBuilder.PropertyContainerDecorationAnalyzer.Build());
         }
 
         public void RegisterAction(SyntaxNodeAnalysisContext context)
